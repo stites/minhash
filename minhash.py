@@ -6,10 +6,11 @@ import time
 HASH_NUM = 1000
 # 32 byte hash
 HASH_SIZE = 32
-MAX_SHINGLE_ID = 2**HASH_SIZE-1
+MAX_SHINGLE_ID = 2**HASH_SIZE - 1
+
 
 # PRIME is the next prime greater than MAX_SHINGLE_ID
-def next_prime(hsize:int):
+def next_prime(hsize: int):
     """
     Minhash relies on the next prime greater than the MAX_SHINGLE_ID (calculated as 2**HASH_SIZE-1).
     At the moment, HASH_SIZE is set to 32 bytes -- in the future, a user may want to supply their
@@ -19,11 +20,13 @@ def next_prime(hsize:int):
         '8': 257,
         '16': 65537,
         '32': 4294967311,
+        # '64': 18446744073709551615, ???
     }
     if str(hsize) in book.keys():
         return book[str(hsize)]
     else:
         raise NotImplementedError("only support for 8-,16-, and 32-byte hashes included")
+
 
 PRIME = next_prime(HASH_SIZE)
 SHINGLE_SIZE = 3
@@ -31,8 +34,10 @@ SHINGLE_SIZE = 3
 # SHINGLE_TYPE is 'word' or 'char'
 SHINGLE_TYPE = 'word'
 
+
 def HASH_FUNC(x):
     return binascii.crc32(x.encode('utf-8')) & 0xffffffff
+
 
 # TODO: should probably use the logger module instead of verbose
 def show_hash(x:int, hash_size=HASH_SIZE, strict=False, verbose=True):
@@ -48,6 +53,7 @@ def show_hash(x:int, hash_size=HASH_SIZE, strict=False, verbose=True):
             pass
 
     return showable
+
 
 def calculate(
     s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=HASH_NUM,
@@ -78,6 +84,7 @@ def calculate(
 
     return union_count / float(total_hash_num)
 
+
 def get_min_signatures(shingles, coeffs_a, coeffs_b, total_hash_num=HASH_NUM, hash_func=HASH_FUNC, prime=PRIME):
     min_signatures = list()
     hash_count = 0
@@ -97,6 +104,7 @@ def get_min_signatures(shingles, coeffs_a, coeffs_b, total_hash_num=HASH_NUM, ha
 
     return min_signatures
 
+
 def str_to_shingles(string, shingle_size=SHINGLE_SIZE, shingle_type=SHINGLE_TYPE):
     shingles_in_doc = set()
 
@@ -107,13 +115,14 @@ def str_to_shingles(string, shingle_size=SHINGLE_SIZE, shingle_type=SHINGLE_TYPE
 
     for idx in range(0, len(units) - (shingle_size - 1)):
         if shingle_type == 'word':
-            shingle = ' '.join(units[idx:idx+shingle_size])
+            shingle = ' '.join(units[idx:idx + shingle_size])
         elif shingle_type == 'char':
-            shingle = ''.join(units[idx:idx+shingle_size])
+            shingle = ''.join(units[idx:idx + shingle_size])
 
         shingles_in_doc.add(shingle)
 
     return list(shingles_in_doc)
+
 
 def generate_coefficients(total_hash_num=HASH_NUM, max_shingle_id=MAX_SHINGLE_ID):
     # create a unique set of 'HASH_NUM' random values
@@ -131,6 +140,7 @@ def generate_coefficients(total_hash_num=HASH_NUM, max_shingle_id=MAX_SHINGLE_ID
 
     return list(rand_set)
 
+
 if __name__ == '__main__':
     if len(sys.argv[1:]) == 0 or sys.argv[1] in ["--help", "-h"]:
         print("minhash.py  --  calculate the minhash of two files")
@@ -142,7 +152,7 @@ if __name__ == '__main__':
         print("file2 - file to compare")
     else:
 
-        str_one, str_two = [b'',b'']
+        str_one, str_two = [b'', b'']
         with open(sys.argv[1], 'rb+') as f:
             str_one = f.read()
 
